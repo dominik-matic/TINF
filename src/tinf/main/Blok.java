@@ -1,6 +1,7 @@
 package tinf.main;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Blok {
 	private ArrayList<String> codeWords;
@@ -26,24 +27,42 @@ public class Blok {
 	}
 	
 	
-	// idk how to calculate this lmao
+	// iskreno ne znam kako ovo izracunati
+	// pokusati cu tako da gledam kojih prvih k znakova se u potpunosti razlikuju
 	public int calculateK() {
-		return 0;
+		if(n == -1) { calculateN(); }
+		int k;
+		boolean flag = false;
+		HashSet<String> set = new HashSet<String>();
+		
+		for(k = 1; !flag; ++k) {
+			flag = true;
+			for(String s : codeWords) {
+				String toAdd = s.substring(0, k);
+				if(!set.add(toAdd)) {
+					flag = false;
+					set.clear();
+					break;
+				}
+			}
+			if(flag) {
+				break;
+			}
+		}
+		
+		return k;
 	}
 	
 	public int calculateDistance() {
 		if(n == -1) { calculateN(); }
 		int m = codeWords.size();
 		int d = Integer.MAX_VALUE;
-		String[] wordArray = new String[m];
-		for(int i = 0; i < m; ++i) { wordArray[i] = codeWords.get(i); }
-		int n = wordArray[0].length();
 		int i, j;
 		for(i = 0; i < (m - 1); ++i) {
 			for(j = i + 1; j < m; ++j) {
 				int currentD = 0;
 				for(int k = 0; k < n; ++k) {
-					if(wordArray[i].charAt(k) != wordArray[j].charAt(k)) { ++currentD; }
+					if(codeWords.get(i).charAt(k) != codeWords.get(j).charAt(k)) { ++currentD; }
 				}
 				if(currentD < d) { d = currentD; }
 			}
@@ -90,14 +109,12 @@ public class Blok {
 		for(int i = 0; i < n; ++i) { zeroString += "0"; }
 		if(!codeWords.contains(zeroString)) { return false; }
 		
-		String[] wordArray = new String[m];
-		for(int i = 0; i < m; ++i) { wordArray[i] = codeWords.get(i); }
 		int i, j, k;
 		for(i = 0; i < (m - 1); ++i) {
 			for(j = i + 1; j < m; ++j) {
 				String newString = "";
 				for(k = 0; k < n; ++k) {
-					if(wordArray[i].charAt(k) != wordArray[j].charAt(k)) {
+					if(codeWords.get(i).charAt(k) != codeWords.get(j).charAt(k)) {
 						newString += "1";
 					} else {
 						newString += "0";

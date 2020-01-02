@@ -286,8 +286,7 @@ public class Main {
 			linLabel[1].setText(blok.isCodeLinear() ? "Da" : "Ne");
 			
 		});
-		
-		
+				
 		// dodavanje panela u frame & all the other finishing touches
 		frame.add(codeWordPanel, codeWordPanelC);
 		frame.add(resultsPanel, resultsPanelC);
