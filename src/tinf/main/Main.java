@@ -25,17 +25,19 @@ import javax.swing.SwingConstants;
 /*
  * ZADATAK: Binarni blok kod K
  * 
- * 	Potrebno je implementirati programsko rješenje koje će omogućiti unos proizvoljnog broja
- * 	kodnih riječi binarnog blok koda K proizvoljne veličine te za uneseni kod odrediti i
- * 	ispisati sljedeća svojstva:
- * 
- * 		1) n i k zadanog koda K
- * 		2) Udaljenost d(K) koda K([1] str. 132)
- * 		3) Sposobnost koda da otkrije i ispravi pogrešku, tj. odrediti broj pogrešaka koje kod
- * 			može otkriti/ispraviti ([1] str. 132)
- *		4) Je li zadani kod perfektan ([1] str. 136)
- *		5) Je li zadani kod linearan ([1] str. 142)
+ * 	Potrebno je implementirati programsko rješenje koje će omogućiti
+ * 	unos generirajuće matrice G binarnog blok koda K proizvoljne
+ * 	veličine te za unesenu matricu, tj. kod K odrediti i ispisati sljedeće
+ *		
+ *		1) n i k zadanog koda K
+ *		2) je li kod K linearan?
+ *		3) je li generirajuća matrica G u standardnom obliku? U slučaju da nije, matricu je
+ *			potrebno transformirati u standardni oblik
+ *		4) Kodnu brzinu koda K
  *
+ *	Također, potrebno je na primjeru (ispisu u konzoli) prikazati zaštitno kodiranje proizvoljno
+ *	unesene poruke, duljine k bita, binarnim blok kodom zadanim matricom G. Napomena: Zaštitno
+ *	kodiranje mora biti provedeno postupkom najmanje složenosti ([1] str. 148)
  */
 
 
