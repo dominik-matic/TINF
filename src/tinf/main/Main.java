@@ -18,6 +18,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -51,21 +52,23 @@ import javax.swing.SwingConstants;
 
 public class Main {
 	public static void main(String[] args) {
-				
+						
 		// konstruiranje framea
 		// napomena: obicno se ovo radi u posebnoj klasi, ali posto zadatak zahtjeva
 		// unos i provjeru podataka u mainu, UI mora biti napisan ovdje
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(new GridBagLayout());
+		frame.setLayout(new GridBagLayout());						// postavljanje layouta
 		
-		// stvaranje 3 glavna panela framea
+		// stvaranje 4 glavna panela framea
 		JPanel codeWordPanel = new JPanel();
 		JPanel resultsPanel = new JPanel();
+		JPanel consolePanel = new JPanel();
 		
-		JPanel buttonPanel = new JPanel();
-		JButton calcButton = new JButton("Izračunaj");
+		JButton calcButton = new JButton("Izračunaj");				// button koji aktivira racunanje
 		calcButton.setEnabled(false);
+		JButton encodeBtn = new JButton("Kodiraj");								// button koji kodira zadan k-bitnu poruku
+		encodeBtn.setEnabled(false);
 		
 		
 		// definiranje GridBagConstraintsa svakog panela
@@ -79,24 +82,24 @@ public class Main {
 		resultsPanelC.gridx = 1; 		resultsPanelC.gridy = 0;
 		//resultsPanelC.weightx = 0.1;	resultsPanelC.weighty = 0.1;
 		resultsPanelC.insets = new Insets(10, 10, 10, 10);
-		resultsPanelC.fill = GridBagConstraints.BOTH;
+		resultsPanelC.fill = GridBagConstraints.BOTH;		
 		
-		GridBagConstraints buttonPanelC = new GridBagConstraints();
-		buttonPanelC.gridx = 0;			buttonPanelC.gridy = 1;
-		buttonPanelC.gridwidth = 2;
+		GridBagConstraints consolePanelC = new GridBagConstraints();
+		consolePanelC.gridx = 0;			consolePanelC.gridy = 1;
+		consolePanelC.gridwidth = 2;
 		//buttonPanelC.weightx = 0.1;		buttonPanelC.weighty = 0.1;
-		buttonPanelC.insets = new Insets(10, 10, 10, 10);
-		buttonPanelC.fill = GridBagConstraints.BOTH;
+		consolePanelC.insets = new Insets(10, 10, 10, 10);
+		consolePanelC.fill = GridBagConstraints.BOTH;
 		
 		/*
 		 * definiranje codeWordPanel-a
 		 *
-		 * u njemu se upisuju i uklanjaju kodne rijeci binarnog blok koda K	
+		 * u njemu se upisuju i uklanjaju redovi generirajuce matrice G blok koda K	
 		 *
 		 */
-		codeWordPanel.setBorder(BorderFactory.createTitledBorder("Kodne riječi"));
+		codeWordPanel.setBorder(BorderFactory.createTitledBorder("Generirajuća matrica"));
 		codeWordPanel.setLayout(new BorderLayout());
-		JButton addBtn = new JButton("Dodaj");
+		JButton addBtn = new JButton("Dodaj redak");
 		JButton rmvBtn = new JButton("Ukloni"); rmvBtn.setEnabled(false);
 		DefaultListModel<String> listModel = new DefaultListModel<String>();
 		JList<String> list = new JList<String>(listModel);
@@ -111,14 +114,15 @@ public class Main {
 		});
 		
 		JScrollPane listScrollPane = new JScrollPane(list);
-		listScrollPane.setPreferredSize(new Dimension(200, 500));
+		listScrollPane.setPreferredSize(new Dimension(150, 200));
 		JPanel southPanel = new JPanel();
 		southPanel.setLayout(new FlowLayout());
 		JTextField inputArea = new JTextField();
 		inputArea.setColumns(15);
 		
 		/*
-		 * ovdje se vrsi provjeravanje ispravnosti kodnih rijeci
+		 * ovdje se vrsi provjeravanje ispravnosti redaka generirajuce matrice
+		 * jedina stvar koja se ne provjerava je jesu li retci linearno nezavisni
 		 */
 		addBtn.addActionListener((l) -> {
 			String kodnaRijec = inputArea.getText();
@@ -130,7 +134,7 @@ public class Main {
 			
 			for(char bit : kodnaRijec.toCharArray()) {
 				if(bit != '1' && bit != '0') {
-					JOptionPane.showMessageDialog(frame,  "Kodna riječ sadrži znakove različite od 0 i 1", "Greška", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(frame,  "Redak sadrži znakove različite od 0 i 1", "Greška", JOptionPane.ERROR_MESSAGE);
 					inputArea.requestFocusInWindow();
 					inputArea.selectAll();
 					return;
@@ -138,7 +142,7 @@ public class Main {
 			}
 			
 			if(listModel.contains(kodnaRijec)) {
-				JOptionPane.showMessageDialog(frame,  "Kodna riječ već postoji", "Greška", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(frame,  "Redak već postoji", "Greška", JOptionPane.ERROR_MESSAGE);
 				inputArea.requestFocusInWindow();
 				inputArea.selectAll();
 				return;
@@ -147,7 +151,7 @@ public class Main {
 			if(listModel.getSize() != 0) {
 				int n = listModel.get(0).length();
 				if(n != nKodneRijeci) {
-					JOptionPane.showMessageDialog(frame, "Kodna riječ nije jednake duljine kao ostale kodne riječi", "Greška", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(frame, "Redak nije jednake duljine kao ostali retci", "Greška", JOptionPane.ERROR_MESSAGE);
 					inputArea.requestFocusInWindow();
 					inputArea.selectAll();
 					return;
@@ -156,20 +160,20 @@ public class Main {
 			
 			listModel.addElement(kodnaRijec);
 			int lastIndex = listModel.size() - 1;
-			if(lastIndex >= 1) { calcButton.setEnabled(true); }
+			if(lastIndex >= 1) { calcButton.setEnabled(true); encodeBtn.setEnabled(true); }
 			list.setSelectedIndex(lastIndex);
 			list.ensureIndexIsVisible(lastIndex);
 			inputArea.requestFocusInWindow();
 			inputArea.setText("");
 		});
 		
-		// uklanjanje kodnih riječi s liste
+		// uklanjanje redaka s liste
 		rmvBtn.addActionListener((l) -> {
 			int index = list.getSelectedIndex();
 			listModel.remove(index);
 			
 			int size = listModel.getSize();
-			if(size < 2) { calcButton.setEnabled(false); }
+			if(size < 2) { calcButton.setEnabled(false); encodeBtn.setEnabled(false); }
 			
 			if(size == 0) {
 				rmvBtn.setEnabled(false);
@@ -186,7 +190,7 @@ public class Main {
 		southPanel.add(inputArea);
 		southPanel.add(addBtn);
 		southPanel.add(rmvBtn);
-		
+				
 		codeWordPanel.add(listScrollPane, BorderLayout.CENTER);
 		codeWordPanel.add(southPanel, BorderLayout.SOUTH);
 		
@@ -214,6 +218,11 @@ public class Main {
 			panels[i].setLayout(new GridLayout(0, 2));
 			resultsPanel.add(panels[i]);
 		}
+		
+		JPanel btnPanel = new JPanel();
+		btnPanel.add(calcButton);
+		resultsPanel.add(btnPanel);
+		
 		JLabel[] nLabel = new JLabel[2];
 		nLabel[0] = new JLabel("n:");
 		nLabel[1] = new JLabel("-");				nLabel[1].setHorizontalAlignment(SwingConstants.CENTER);
@@ -257,15 +266,35 @@ public class Main {
 		panels[6].add(linLabel[1]);
 		
 		/*
-		 * definiranje buttonPanel-a
+		 * definiranje consolePanel-a
 		 * 
-		 * sadrzi samo jedan button koji ce pozvati metode računanja
+		 * sadrzi console window i mjesto za upisivanje kodne rijeci koje treba kodirati
 		 * 
 		 */
-		buttonPanel.setLayout(new FlowLayout());
-		buttonPanel.add(calcButton);
+		consolePanel.setLayout(new BorderLayout());
+		consolePanel.setBorder(BorderFactory.createTitledBorder("Konzola"));
+		JTextArea console = new JTextArea();
+		console.setLineWrap(true);
+		console.setWrapStyleWord(true);
+		console.setPreferredSize(new Dimension(250, 175));
+		console.setEditable(false);
+		JPanel southConsolePanel = new JPanel();
+		southConsolePanel.setLayout(new FlowLayout());
+		JTextField fieldToDecode = new JTextField();
+		fieldToDecode.setColumns(30);
 		
-		// pozivanje metoda računanja
+		southConsolePanel.add(fieldToDecode);
+		southConsolePanel.add(encodeBtn);
+		
+		consolePanel.add(console, BorderLayout.CENTER);
+		consolePanel.add(southConsolePanel, BorderLayout.SOUTH);
+		
+		// definiranje encodeBtn-a, tj. provjeravanje inputa i pozivanje metode kodiranja
+		encodeBtn.addActionListener((e) -> {
+			
+		});
+		
+		// definiranje calcButtona, tj. pozivanje metoda racunanja
 		calcButton.addActionListener((e) -> {
 			// za svaki slucaj provjeri ima li u listi vise od 2 elementa
 			if(listModel.size() < 2) { return; }
@@ -286,13 +315,14 @@ public class Main {
 			ispLabel[1].setText(blok.calculateErrorCorrection() + "");
 			perfLabel[1].setText(blok.isCodePerfect() ? "Da" : "Ne");
 			linLabel[1].setText(blok.isCodeLinear() ? "Da" : "Ne");
+			encodeBtn.setEnabled(true);
 			
 		});
 				
 		// dodavanje panela u frame & all the other finishing touches
 		frame.add(codeWordPanel, codeWordPanelC);
 		frame.add(resultsPanel, resultsPanelC);
-		frame.add(buttonPanel, buttonPanelC);
+		frame.add(consolePanel, consolePanelC);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
