@@ -67,7 +67,7 @@ public class Main {
 		
 		JButton calcButton = new JButton("Izračunaj");				// button koji aktivira racunanje
 		calcButton.setEnabled(false);
-		JButton encodeBtn = new JButton("Kodiraj");								// button koji kodira zadan k-bitnu poruku
+		JButton encodeBtn = new JButton("Kodiraj");					// button koji kodira zadan k-bitnu poruku
 		encodeBtn.setEnabled(false);
 		
 		
@@ -203,17 +203,15 @@ public class Main {
 		resultsPanel.setLayout(new GridLayout(0, 1));
 		
 		/*
-		 * definiramo 7 panela:
+		 * definiramo 5 panela:
 		 * 0 - n koda
 		 * 1 - k koda
-		 * 2 - d(K)
-		 * 3 - koliko moze gresaka otkriti
-		 * 4 - koliko moze gresaka ispraviti
-		 * 5 - je li perfektan
-		 * 6 - je li linearan
+		 * 2 - je li linearan
+		 * 3 - je li generirajuca matrica u standardnom obliku
+		 * 4 - kodna brzina koda
 		 * */
 		JPanel[] panels = new JPanel[7];
-		for(int i = 0; i < 7; ++i) {
+		for(int i = 0; i < 5; ++i) {
 			panels[i] = new JPanel();
 			panels[i].setLayout(new GridLayout(0, 2));
 			resultsPanel.add(panels[i]);
@@ -224,46 +222,34 @@ public class Main {
 		resultsPanel.add(btnPanel);
 		
 		JLabel[] nLabel = new JLabel[2];
-		nLabel[0] = new JLabel("n:");
+		nLabel[0] = new JLabel("n:");				nLabel[0].setHorizontalAlignment(SwingConstants.CENTER);
 		nLabel[1] = new JLabel("-");				nLabel[1].setHorizontalAlignment(SwingConstants.CENTER);
 		panels[0].add(nLabel[0]);
 		panels[0].add(nLabel[1]);
 		
 		JLabel[] kLabel = new JLabel[2];
-		kLabel[0] = new JLabel("k:");
+		kLabel[0] = new JLabel("k:");				kLabel[0].setHorizontalAlignment(SwingConstants.CENTER);
 		kLabel[1] = new JLabel("-");				kLabel[1].setHorizontalAlignment(SwingConstants.CENTER);
 		panels[1].add(kLabel[0]);
 		panels[1].add(kLabel[1]);
 		
-		JLabel[] dLabel = new JLabel[2];
-		dLabel[0] = new JLabel("d(K):");
-		dLabel[1] = new JLabel("-");				dLabel[1].setHorizontalAlignment(SwingConstants.CENTER);
-		panels[2].add(dLabel[0]);
-		panels[2].add(dLabel[1]);
-		
-		JLabel[] otkLabel = new JLabel[2];
-		otkLabel[0] = new JLabel("Otkriti:");
-		otkLabel[1] = new JLabel("-");				otkLabel[1].setHorizontalAlignment(SwingConstants.CENTER);
-		panels[3].add(otkLabel[0]);
-		panels[3].add(otkLabel[1]);
-		
-		JLabel[] ispLabel = new JLabel[2];
-		ispLabel[0] = new JLabel("Ispraviti:");
-		ispLabel[1] = new JLabel("-");				ispLabel[1].setHorizontalAlignment(SwingConstants.CENTER);
-		panels[4].add(ispLabel[0]);
-		panels[4].add(ispLabel[1]);
-		
-		JLabel[] perfLabel = new JLabel[2];
-		perfLabel[0] = new JLabel("Perfektan:");
-		perfLabel[1] = new JLabel("-");				perfLabel[1].setHorizontalAlignment(SwingConstants.CENTER);
-		panels[5].add(perfLabel[0]);
-		panels[5].add(perfLabel[1]);
-		
 		JLabel[] linLabel = new JLabel[2];
 		linLabel[0] = new JLabel("Linearan:");
 		linLabel[1] = new JLabel("-");				linLabel[1].setHorizontalAlignment(SwingConstants.CENTER);
-		panels[6].add(linLabel[0]);
-		panels[6].add(linLabel[1]);
+		panels[2].add(linLabel[0]);
+		panels[2].add(linLabel[1]);
+		
+		JLabel[] stdLabel = new JLabel[2];
+		stdLabel[0] = new JLabel("Std. oblik:");
+		stdLabel[1] = new JLabel("-");				stdLabel[1].setHorizontalAlignment(SwingConstants.CENTER);
+		panels[3].add(stdLabel[0]);
+		panels[3].add(stdLabel[1]);
+		
+		JLabel[] spdLabel = new JLabel[2];
+		spdLabel[0] = new JLabel("Brzina koda:");
+		spdLabel[1] = new JLabel("-");				spdLabel[1].setHorizontalAlignment(SwingConstants.CENTER);
+		panels[4].add(spdLabel[0]);
+		panels[4].add(spdLabel[1]);
 		
 		/*
 		 * definiranje consolePanel-a
@@ -276,28 +262,81 @@ public class Main {
 		JTextArea console = new JTextArea();
 		console.setLineWrap(true);
 		console.setWrapStyleWord(true);
-		console.setPreferredSize(new Dimension(250, 175));
 		console.setEditable(false);
+		JScrollPane consolePane = new JScrollPane(console);
+		consolePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		consolePane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		consolePane.setPreferredSize(new Dimension(200, 175));
 		JPanel southConsolePanel = new JPanel();
 		southConsolePanel.setLayout(new FlowLayout());
 		JTextField fieldToDecode = new JTextField();
 		fieldToDecode.setColumns(30);
+		JButton clearBtn = new JButton("Očisti");
 		
 		southConsolePanel.add(fieldToDecode);
 		southConsolePanel.add(encodeBtn);
+		southConsolePanel.add(clearBtn);
 		
-		consolePanel.add(console, BorderLayout.CENTER);
+		consolePanel.add(consolePane, BorderLayout.CENTER);
 		consolePanel.add(southConsolePanel, BorderLayout.SOUTH);
+		
+		clearBtn.addActionListener((e) -> { console.setText(""); });
 		
 		// definiranje encodeBtn-a, tj. provjeravanje inputa i pozivanje metode kodiranja
 		encodeBtn.addActionListener((e) -> {
+			int n = listModel.get(0).length();
+			int m = listModel.getSize();
+			if(m >= n) { console.append("Matrica nije generirajuća\n"); return; }
+			
+			
+			String input = fieldToDecode.getText();
+			if(input.isEmpty()) { return; }
+			
+			for(char bit : input.toCharArray()) {
+				if(bit != '1' && bit != '0') {
+					console.append("> " + input + "\n");
+					console.append("Poruka sadrži znakove različite od 0 i 1\n");
+					fieldToDecode.requestFocusInWindow();
+					fieldToDecode.selectAll();
+					return;
+				}
+			}
+			
+			ArrayList<String> arrayList = new ArrayList<String>();
+			for(int i = 0; i < listModel.size(); ++i) {
+				arrayList.add(listModel.get(i));
+			}
+			Blok blok = new Blok(arrayList);
+			
+			int k = blok.calculateK();
+			if(input.length() != k) {
+				console.append("> " + input + "\n");
+				console.append("Poruka mora biti duljine " + k + "\n");
+				fieldToDecode.requestFocusInWindow();
+				fieldToDecode.selectAll();
+				return;
+			}
+			
+			console.append("> " + input + "\n");
+			console.append("Kodirana poruka: " + blok.encodeMessage(input) + "\n");
 			
 		});
 		
 		// definiranje calcButtona, tj. pozivanje metoda racunanja
 		calcButton.addActionListener((e) -> {
-			// za svaki slucaj provjeri ima li u listi vise od 2 elementa
-			if(listModel.size() < 2) { return; }
+			int n = listModel.get(0).length();
+			int m = listModel.getSize();
+			if(m >= n) {
+				console.append("Matrica nije generirajuća\n");
+				nLabel[1].setText("-");
+				kLabel[1].setText("-");
+				linLabel[1].setText("-");
+				stdLabel[1].setText("-");
+				spdLabel[1].setText("-");
+				return;
+			}
+			
+			
 			
 			// pretvori listModel u ArrayList kojeg zahtjeva objekt tipa Blok
 			ArrayList<String> arrayList = new ArrayList<String>();
@@ -307,15 +346,27 @@ public class Main {
 			
 			// stvaranje objekta tipa Blok koji moze izracunati sve potrebne vrijednosti
 			Blok blok = new Blok(arrayList);
-			
+
 			nLabel[1].setText(blok.calculateN() + "");
 			kLabel[1].setText(blok.calculateK() + "");
-			dLabel[1].setText(blok.calculateDistance() + "");
-			otkLabel[1].setText(blok.calculateErrorDetection() + "");
-			ispLabel[1].setText(blok.calculateErrorCorrection() + "");
-			perfLabel[1].setText(blok.isCodePerfect() ? "Da" : "Ne");
 			linLabel[1].setText(blok.isCodeLinear() ? "Da" : "Ne");
-			encodeBtn.setEnabled(true);
+			stdLabel[1].setText(blok.isGenMatrixStandard() ? "Da" : "Ne");
+			spdLabel[1].setText(blok.calculateSpeed() + "");
+			
+			// ispisivanje u konzolu svih kodnih riječi blok koda
+			console.append("Sve kodne riječi su:\n");
+			arrayList = blok.getCodeWords();
+			for(String s : arrayList) {
+				console.append(s + '\n');
+			}
+			
+			if(!blok.isGenMatrixStandard()) {
+				console.append("Generirajuća matrica u standardnom obliku:\n");
+				ArrayList<String> stdMatrix = blok.getStandardMatrix();
+				for(String s : stdMatrix) {
+					console.append(s + "\n");
+				}
+			}
 			
 		});
 				
@@ -328,4 +379,10 @@ public class Main {
 		frame.setVisible(true);
 		
 	}
+
 }
+
+
+
+
+
