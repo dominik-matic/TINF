@@ -1,7 +1,6 @@
 package tinf.main;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 
 /*
@@ -46,16 +45,19 @@ public class Blok {
 		ArrayList<String> tempCodeWords = new ArrayList<String>();
 		
 		// dodavanje kodnih rijeci dobivenih zbrajanjem postojecih
-		for(int i = 0; i < genMatrix.size() - 1; ++i) {
-			for(int j = i + 1; j < genMatrix.size(); ++j) {
-				String word = "";
-				for(int k = 0; k < n; ++k) {
-					word += codeWords.get(i).charAt(k) == codeWords.get(j).charAt(k) ? "0" : "1";
+		for(int h = 0; h < m; ++h) {
+			codeWords.addAll(tempCodeWords);
+			tempCodeWords.clear();
+			for(int i = 0; i < codeWords.size() - 1; ++i) {
+				for(int j = i + 1; j < codeWords.size(); ++j) {
+					String word = "";
+					for(int k = 0; k < n; ++k) {
+						word += codeWords.get(i).charAt(k) == codeWords.get(j).charAt(k) ? "0" : "1";
+					}
+					if(!tempCodeWords.contains(word) && !codeWords.contains(word)) { tempCodeWords.add(word); }
 				}
-				if(!tempCodeWords.contains(word) && !codeWords.contains(word)) { tempCodeWords.add(word); }
 			}
 		}
-		codeWords.addAll(tempCodeWords);
 		
 		// dodavanje 0-vektora ako ga nema
 		String zeroVector = "";
@@ -76,29 +78,11 @@ public class Blok {
 		return this.codeWords;
 	}
 	
-	// iskreno ne znam kako ovo izracunati
-	// pokusati cu tako da gledam kojih prvih k znakova se u potpunosti razlikuju
+	/*
+	 * Vraca k blok koda, koji je samo broj redaka generirajuce matrice
+	 * */
 	public int calculateK() {
-		int k;
-		boolean flag = false;
-		HashSet<String> set = new HashSet<String>();
-		
-		for(k = 1; !flag; ++k) {
-			flag = true;
-			for(String s : codeWords) {
-				String toAdd = s.substring(0, k);
-				if(!set.add(toAdd)) {
-					flag = false;
-					set.clear();
-					break;
-				}
-			}
-			if(flag) {
-				break;
-			}
-		}
-		
-		return k;
+		return genMatrix.size();
 	}
 	
 	public float calculateSpeed() {
@@ -191,7 +175,7 @@ public class Blok {
 						newString += "0";
 					}
 				}
-				if(!codeWords.contains(newString)) { return false; }
+				if(!codeWords.contains(newString)) { System.out.println(newString); return false; }
 			}
 		}
 		

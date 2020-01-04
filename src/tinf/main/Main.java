@@ -15,7 +15,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -60,34 +59,34 @@ public class Main {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new GridBagLayout());						// postavljanje layouta
 		
-		// stvaranje 4 glavna panela framea
+		// stvaranje 3 glavna panela framea
 		JPanel codeWordPanel = new JPanel();
 		JPanel resultsPanel = new JPanel();
 		JPanel consolePanel = new JPanel();
 		
+		
+		// ova 3 elementa UI-a definiramo ranije jer cemo ih pozivati u funkcijama ispod
 		JButton calcButton = new JButton("Izračunaj");				// button koji aktivira racunanje
 		calcButton.setEnabled(false);
 		JButton encodeBtn = new JButton("Kodiraj");					// button koji kodira zadan k-bitnu poruku
 		encodeBtn.setEnabled(false);
+		JTextArea console = new JTextArea();						// konzola (sort of)
 		
 		
 		// definiranje GridBagConstraintsa svakog panela
 		GridBagConstraints codeWordPanelC = new GridBagConstraints();
 		codeWordPanelC.gridx = 0;		codeWordPanelC.gridy = 0;
-		//codeWordPanelC.weightx = 0.1;	codeWordPanelC.weighty = 0.1;
 		codeWordPanelC.insets = new Insets(10, 10, 10, 10);
 		codeWordPanelC.fill = GridBagConstraints.BOTH;
 		
 		GridBagConstraints resultsPanelC = new GridBagConstraints();
 		resultsPanelC.gridx = 1; 		resultsPanelC.gridy = 0;
-		//resultsPanelC.weightx = 0.1;	resultsPanelC.weighty = 0.1;
 		resultsPanelC.insets = new Insets(10, 10, 10, 10);
 		resultsPanelC.fill = GridBagConstraints.BOTH;		
 		
 		GridBagConstraints consolePanelC = new GridBagConstraints();
 		consolePanelC.gridx = 0;			consolePanelC.gridy = 1;
 		consolePanelC.gridwidth = 2;
-		//buttonPanelC.weightx = 0.1;		buttonPanelC.weighty = 0.1;
 		consolePanelC.insets = new Insets(10, 10, 10, 10);
 		consolePanelC.fill = GridBagConstraints.BOTH;
 		
@@ -122,7 +121,6 @@ public class Main {
 		
 		/*
 		 * ovdje se vrsi provjeravanje ispravnosti redaka generirajuce matrice
-		 * jedina stvar koja se ne provjerava je jesu li retci linearno nezavisni
 		 */
 		addBtn.addActionListener((l) -> {
 			String kodnaRijec = inputArea.getText();
@@ -134,7 +132,7 @@ public class Main {
 			
 			for(char bit : kodnaRijec.toCharArray()) {
 				if(bit != '1' && bit != '0') {
-					JOptionPane.showMessageDialog(frame,  "Redak sadrži znakove različite od 0 i 1", "Greška", JOptionPane.ERROR_MESSAGE);
+					console.append("Greška: Redak sadrži znakove različite od 0 i 1\n");
 					inputArea.requestFocusInWindow();
 					inputArea.selectAll();
 					return;
@@ -142,7 +140,7 @@ public class Main {
 			}
 			
 			if(listModel.contains(kodnaRijec)) {
-				JOptionPane.showMessageDialog(frame,  "Redak već postoji", "Greška", JOptionPane.ERROR_MESSAGE);
+				console.append("Greška: Redak već postoji\n");
 				inputArea.requestFocusInWindow();
 				inputArea.selectAll();
 				return;
@@ -151,12 +149,47 @@ public class Main {
 			if(listModel.getSize() != 0) {
 				int n = listModel.get(0).length();
 				if(n != nKodneRijeci) {
-					JOptionPane.showMessageDialog(frame, "Redak nije jednake duljine kao ostali retci", "Greška", JOptionPane.ERROR_MESSAGE);
+					console.append("Greška: Redak nije jednake duljine kao ostali retci\n");
 					inputArea.requestFocusInWindow();
 					inputArea.selectAll();
 					return;
 				}
 			}
+			
+			// provjeravanje je li redak nul vektor, koji nema smisla u generirajucoj matrici
+			// jer nikada ne bi bio linearno nezavisan s drugim vektorima
+			String zeroVector = "";
+			for(int i = 0; i < nKodneRijeci; ++i) { zeroVector += "0"; }
+			if(kodnaRijec.equals(zeroVector)) {
+				console.append("Greška: Redak je nul-vektor (zavisan sa svim ostalim vektorima)\n");
+				inputArea.requestFocusInWindow();
+				inputArea.selectAll();
+				return;
+			} else { 		// provjera je li redak zavisan sa ostalim vektorima
+				ArrayList<String> currentCodeWords= new ArrayList<String>();
+				for(int i = 0; i < listModel.size(); ++i) { currentCodeWords.add(listModel.get(i)); }
+				ArrayList<String> tempCodeWords = new ArrayList<String>();
+				for(int h = 0; h < listModel.size(); ++h) {
+					currentCodeWords.addAll(tempCodeWords);
+					tempCodeWords.clear();
+					for(int i = 0; i < currentCodeWords.size() - 1; ++i) {
+						for(int j = i + 1; j < currentCodeWords.size(); ++j) {
+							String word = "";
+							for(int k = 0; k < nKodneRijeci; ++k) {
+								word += currentCodeWords.get(i).charAt(k) == currentCodeWords.get(j).charAt(k) ? "0" : "1";
+							}
+							if(!tempCodeWords.contains(word) && !currentCodeWords.contains(word)) { tempCodeWords.add(word); }
+						}
+					}
+				}
+				if(currentCodeWords.contains(kodnaRijec)) {
+					console.append("Greška: Redak je linearno zavisan s ostalim retcima\n");
+					inputArea.requestFocusInWindow();
+					inputArea.selectAll();
+					return;
+				}
+			}
+			
 			
 			listModel.addElement(kodnaRijec);
 			int lastIndex = listModel.size() - 1;
@@ -259,7 +292,6 @@ public class Main {
 		 */
 		consolePanel.setLayout(new BorderLayout());
 		consolePanel.setBorder(BorderFactory.createTitledBorder("Konzola"));
-		JTextArea console = new JTextArea();
 		console.setLineWrap(true);
 		console.setWrapStyleWord(true);
 		console.setEditable(false);
