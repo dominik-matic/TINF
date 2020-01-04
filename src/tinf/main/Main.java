@@ -46,6 +46,20 @@ import javax.swing.SwingConstants;
  * 	Unos podataka i provjera njihove ispravnosti
  * 	pozivanje metoda
  * 	ispis rješenja
+ * 	
+ * 
+ * 	Iskreno, u ovoj klasi nema se puno toga vidjeti,
+ * 	vecina je samo javin boilerplate definiranja UI-a
+ * 	dijelovi na koje treba obratiti pozornost je u action listenerima buttona
+ * 	tamo se provjerava ispravnost unesenih podataka.
+ * 	Provjerava se je li unesen redak dobre duljine
+ * 	sadrzi li redak znakove razlicite od 1 ili 0
+ * 	postoji li taj redak vec u matrici
+ * 	je li redak nul-redak
+ * 	je li redak linearno nezavisan sa ostalim retcima
+ * 		ovo se provjerava na nacin da se iz postojecih redaka izracunaju sve
+ * 		linearne kombinacije i onda provjeri postoji li input medu tim kombinacijama
+ * 	
  * 
  */
 

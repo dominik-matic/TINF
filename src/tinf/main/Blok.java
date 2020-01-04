@@ -24,27 +24,33 @@ public class Blok {
 	
 	
 	/*
-	 * Konstruktor iz generirajuce matrice racuna sve kodne rijeci blok koda
+	 * Konstruktor uzima generirajucu matricu, te iz nje izracuna sve kodne rijeci
+	 * zbrajanjem svake kodne rijeci sa svakom, ponavljajuci to jos m - 1 put nad
+	 * novonastalim kodnim rijecima. u codeWords listu dodaje samo one koje vec u njoj
+	 * ne postoje.
 	 * 
 	 * */
 	public Blok(ArrayList<String> genMatrix) {
 		
-		int m = genMatrix.size();
-		int n = genMatrix.get(0).length();
+		int m = genMatrix.size();						// broj redaka nam je potreban za iteriranje
+		int n = genMatrix.get(0).length();				// n također, kao i za ostale metode klase koji koriste n
+		
+		
+		// ovi exceptioni se ne bi trebali dogoditi posto se vec u mainu osigurava da se preda generirajuca matrica
 		if (n <= m) { throw new IllegalArgumentException("Matrica nije generirajuća"); }
 		for(int i = 0; i < m; ++i) {
 			if(genMatrix.get(i).length() != n) { throw new IllegalArgumentException("Redovi su razlicitih duljina."); }
 		}
 		
+		// spremanje privatnih varijabli potrebnih za kasnije izracune
 		this.n = n;
 		this.genMatrix = genMatrix;
-		calculateN();
 		
 		/* iz generirajuce matrice odmah izvuci sve kodne rijeci */
 		ArrayList<String> codeWords = new ArrayList<String>(genMatrix);
 		ArrayList<String> tempCodeWords = new ArrayList<String>();
 		
-		// dodavanje kodnih rijeci dobivenih zbrajanjem postojecih
+		// zbrajamo svaku kodnu rijec sa svakom, i to m puta kako bismo ih dobili sve
 		for(int h = 0; h < m; ++h) {
 			codeWords.addAll(tempCodeWords);
 			tempCodeWords.clear();
@@ -68,12 +74,15 @@ public class Blok {
 	}
 	
 	/*
-	 * Funkcija vraca duljinu kodne rijeci
+	 * Metoda vraca duljinu kodne rijeci
 	 * */
 	public int calculateN() {
 		return n;
 	}
 	
+	/*
+	 * Vraca listu kodih rijeci
+	 * */
 	public ArrayList<String> getCodeWords() {
 		return this.codeWords;
 	}
@@ -85,13 +94,17 @@ public class Blok {
 		return genMatrix.size();
 	}
 	
+	
+	/*
+	 * Racuna brzinu koda, sto je samo k / n
+	 * */
 	public float calculateSpeed() {
 		float k = (float) calculateK();
 		return k / (float) n;
 	}
 	
 	/*
-	 * Vraca udaljenost kodnih rijeci
+	 * Vraca udaljenost kodnih rijeci; za svake 2 kodne rijeci pogleda njihovu udaljenost i vraca najmanju
 	 * */
 	public int calculateDistance() {
 		if(d != -1) { return d; }
@@ -114,7 +127,7 @@ public class Blok {
 	
 	
 	/*
-	 * Vraca koliko gresaka kod moze detektirati
+	 * Vraca koliko gresaka kod moze detektirati; (1. zadatak, ne koristi se)
 	 * */
 	public int calculateErrorDetection() {
 		if(d == -1) { this.calculateDistance(); }
@@ -123,7 +136,7 @@ public class Blok {
 	
 	
 	/*
-	 * Vraca koliko gresaka kod moze ispraviti
+	 * Vraca koliko gresaka kod moze ispraviti; (1. zadatak, ne koristi se)
 	 * */
 	public int calculateErrorCorrection() {
 		if(d == -1) { this.calculateDistance(); }
@@ -131,7 +144,7 @@ public class Blok {
 	}
 	
 	/*
-	 * Vraca je li kod perfektan
+	 * Vraca je li kod perfektan, (1. zadatak, ne koristi se)
 	 * */
 	public boolean isCodePerfect() {
 		if(d == -1) { calculateDistance(); }
@@ -156,6 +169,9 @@ public class Blok {
 	 * Vraca je li kod linearan. uvijek bi trebao vracati true
 	 * jer generirajuca matrica opisuje linearan kod, iskreno ne znam
 	 * zasto je uopce potrebno pisati ovu metodu
+	 * 
+	 * Metoda zbraja svaku kodnu rijec sa svakom i gleda postoji li
+	 * novonastala rijec u kodu, ako ne, kod nije linearan
 	 * */
 	public boolean isCodeLinear() {
 		int m = codeWords.size();
@@ -182,6 +198,12 @@ public class Blok {
 		return true;
 	}
 	
+	/*
+	 * Provjerava je li generirajuca matrica standardna
+	 * 
+	 * m - broj redaka
+	 * Funkcija gleda nalazi li se u pocetnom m x m dijelu matrice jedinicna matrica
+	 * */
 	public boolean isGenMatrixStandard() {
 		int m = genMatrix.size();
 		if (m > n) { throw new IllegalArgumentException("Matrica nije generirajuca"); }
@@ -201,6 +223,12 @@ public class Blok {
 		return true;
 	}
 	
+	
+	/*
+	 * Vraca standardnu matricu, tj. prvo provjeri je li genMatrix standardna,
+	 * ako nije, izracuna standardnu metodama zamijenjivanja redaka stupaca i 
+	 * dodavanjem jednog retka drugome
+	 * */
 	public ArrayList<String> getStandardMatrix() {
 		if(isGenMatrixStandard()) {
 			return genMatrix;
@@ -213,6 +241,12 @@ public class Blok {
 		return stdMatrix;
 	}
 	
+	
+	/*
+	 * Kodira input pomocu standardne generirajuce matrice,
+	 * tj. vraca input + zalihost koja se dobije mnozenjem inputa
+	 * sa desnom stranom generirajuce matrice
+	 * */
 	public String encodeMessage(String input) {
 		String redundancy = "";
 		ArrayList<String> stdMatrix = getStandardMatrix();
@@ -239,6 +273,7 @@ public class Blok {
 	/*
 	 * Pomoćna funkcija za računanje binomnog koeficijenta
 	 * potrebnog za određivanje je li kod perfektan
+	 * (1. zadatak, ne koristi se)
 	 * */
 	private static long binomialCoefficient(int n, int k) {
 		long N = 1;
