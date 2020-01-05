@@ -231,14 +231,67 @@ public class Blok {
 	 * */
 	public ArrayList<String> getStandardMatrix() {
 		if(isGenMatrixStandard()) {
-			return genMatrix;
-		}
-		
-		ArrayList<String> stdMatrix = new ArrayList<String>(genMatrix);
-		
-		// somehow transform into std form
-		
-		return stdMatrix;
+            return genMatrix;
+        }
+        int col = 0;
+        int pamti = -1;
+        int brojgotovih = -1;
+
+        //broj redova genMatrix.size()   matrix.length
+        //broj stupaca n                 matrix[0].length
+
+        ArrayList<String> stdMatrix = new ArrayList<>();
+        int[][] matrix = new int[genMatrix.size()][n];
+
+        for(int i=0; i<matrix.length; i++){
+            for(int j=0; j<matrix[0].length; j++){
+
+                matrix[i][j]= genMatrix.get(i).charAt(j) -48;
+            }
+        }
+
+        while (col < matrix.length) {
+            for (int row = 0; row < matrix.length; row++) {
+                if (matrix[row][col] == 1 && row > brojgotovih) {
+                    pamti = row;
+                    break;
+                }
+            }
+            if (pamti == -1) {
+                int row2 = col;
+                for (int column = 0; column < matrix[0].length; column++) {
+                    if (matrix[row2][column] == 1) {
+                        swapCols(matrix, row2, column);
+                        break;
+                    }
+                }
+            } else {
+
+                for (int row = 0; row < matrix.length; row++) {
+                    if (matrix[row][col] == 1 && row != pamti) {
+                        for (int k = 0; k < matrix[0].length; k++) {
+                            matrix[row][k] = matrix[row][k] ^ matrix[pamti][k];
+                        }
+                    }
+                }
+
+                swapRows(matrix, pamti, col);
+                pamti = -1;
+                col++;
+                brojgotovih++;
+            }
+        }
+
+        for(int i=0; i<matrix.length; i++){
+            StringBuilder s = new StringBuilder();
+            for(int j=0; j<matrix[0].length; j++){
+                s.append(matrix[i][j]);
+            }
+            stdMatrix.add(s.toString());
+            s.delete(0, matrix[0].length-1);
+        }
+
+        return stdMatrix;
 	}
 	
 	
@@ -257,10 +310,15 @@ public class Blok {
 			rightMatrix.add(row.substring(m));
 		}
 		
+		for(int i = 0; i < rightMatrix.size(); ++i) {
+			System.out.println(rightMatrix.get(i));
+		}
+		
 		for(int k = 0; k < n - m; ++k) {
 			int counter = 0;
+			
 			for(int i = 0, j = 0; i < m; ++i, ++j) {
-				if(input.charAt(i) == '1' && rightMatrix.get(i).charAt(j) == '1') {
+				if(input.charAt(i) == '1' && rightMatrix.get(i).charAt(k) == '1') {
 					counter++;
 				}
 			}
@@ -269,6 +327,28 @@ public class Blok {
 		
 		return input + redundancy;
 	}
+	
+	/*
+    Zamijenjuje dva retka u matrici
+     */
+    public static void swapRows(int[][] matrix, int a, int b) {
+        int[] temp = matrix[a];
+        matrix[a] = matrix[b];
+        matrix[b] = temp;
+    }
+
+    /*
+    Zamjenjuje dva stupca u matrici
+     */
+    public static void swapCols(int[][] matrix, int a, int b) {
+        int temp;
+        for (int i = 0; i < matrix.length; i++) {
+            temp = matrix[i][a];
+            matrix[i][a] = matrix[i][b];
+            matrix[i][b] = temp;
+        }
+    }
+	
 	
 	/*
 	 * Pomoćna funkcija za računanje binomnog koeficijenta
