@@ -313,7 +313,7 @@ public class Blok {
 		for(int k = 0; k < n - m; ++k) {
 			int counter = 0;
 			
-			for(int i = 0, j = 0; i < m; ++i, ++j) {
+			for(int i = 0; i < m; ++i) {
 				if(input.charAt(i) == '1' && rightMatrix.get(i).charAt(k) == '1') {
 					counter++;
 				}
