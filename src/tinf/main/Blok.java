@@ -310,10 +310,6 @@ public class Blok {
 			rightMatrix.add(row.substring(m));
 		}
 		
-		for(int i = 0; i < rightMatrix.size(); ++i) {
-			System.out.println(rightMatrix.get(i));
-		}
-		
 		for(int k = 0; k < n - m; ++k) {
 			int counter = 0;
 			
